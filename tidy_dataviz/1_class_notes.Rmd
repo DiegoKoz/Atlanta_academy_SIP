@@ -103,7 +103,7 @@ While this is the main structure of the tidyverse ecosystem, there are multiple 
 
 ## Tidy data functions
 
-As you had a glimpse in the previous classes, there are some basic functions that we use to tidy data:
+there are some basic functions that we use to tidy data:
 
 -   `mutate`: to transform columns,
 
@@ -114,6 +114,25 @@ As you had a glimpse in the previous classes, there are some basic functions tha
 -   `arrange`: to reorder values of rows.
 
 Now, we will go over the basics of more complex data transformation functions to **reshape** the data: joins, pivots, summarizes and date processing.
+
+For example if we have a survey on households
+
+```{r}
+household
+
+household |> 
+  filter(n_people_household>2)
+
+household |> 
+  filter(n_people_household>2) |> 
+  mutate(neighborhood_income = toupper(neighborhood_income))
+
+household |> 
+  filter(n_people_household>2) |> 
+  mutate(neighborhood_income = toupper(neighborhood_income)) |> 
+  select(neighborhood_income,n_people_household)
+```
+
 
 ### Merges of dataframes
 
@@ -129,21 +148,21 @@ Now, how do dataframe joins work?
 
 -   **Inner join:** this creates a new dataset that only contains the information of rows where the IDs match. For example, in our case, the data of the household 5 wouldn't appear since it doesn't join any individual data.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 inner_join <- individual %>% inner_join(household)
 inner_join
 ```
 
 -   **Left join:** it keeps all the rows of the data on the "left" and adds the columns that match the dataframe on the right. The decision of which dataframe goes where (left or right) is arbitrary and up to us, but we must keep in mind that it will be our main dataframe in the join. In our example, if we chose the individual dataset as the left, we would have the same table as the result of the inner join. But if we chose the household dataset, we would have a dataset with empty values for the ID's that don't match.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 left_join_house <- household %>% left_join(individual)
 left_join_house
 ```
 
 -   **Full join:** it keeps all the columns and all the rows in both dataframes.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 out_join <- household %>% full_join(individual)
 out_join
 ```
@@ -152,21 +171,21 @@ out_join
 
 Many times, we will want to summarize the information in our dataset. We can catch a glimpse of the summarized dataset with functions such as `summary()` or `str()`. However, more often, we will want to see specific information regarding groups in our dataset. For example, how many households we have in the different types of neighborhoods. To do this, it is necessary to group our data. We will not look into the total number of households, but we will group the data by the neighborhood of the households. Then, we can count each group.
 
-```{r echo=FALSE, warning=FALSE}
+```{r, warning=FALSE}
 household %>% group_by(neighborhood_income) %>%
   summarise(n=n())
 ```
 
 Other times, we might be interested in getting descriptive statistics per group. For example, the median age for men and women in the individuals dataset.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 individual %>% group_by(gender) %>%
   summarise(median_age = median(age))
 ```
 
 Or even combine groups and subgroups. For example, the median income for women and men who live in low income or high income neighborhoods
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 individual %>% 
   left_join(household) %>%
   group_by(neighborhood_income, gender) %>%
@@ -179,7 +198,7 @@ Converting your data from wide-to-long or from long-to-wide data formats is refe
 
 For example, take this subset of columns from our individuals dataset.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 individual %>% select(person_ID, gender, age, income)
 ```
 
@@ -187,7 +206,7 @@ This is what we call a wide format: each variable has its own column, and each r
 
 This is the same dataset we had previously but reshaped as long data.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 individual %>% 
   select(person_ID, gender, age, income) %>% 
   pivot_longer(cols = -c(person_ID, gender), names_to = "variable", values_to = "value" )
@@ -217,7 +236,7 @@ The grammar of graphics approach allows users to create a wide range of plots, f
 
 We can group plots into various clusters according to the kind of data we want to show. We will often be interested in showing the magnitude of numbers: the total number of people living in different countries, the mean salary for different groups of populations. These cases have a set of categorical values (such as countries, or demographic groups) and a quantitative value for each category. This is the same as saying we are going to show *amounts* (@wilke). The most common graph to showcase amounts are **bar plots.** For example, we can display the countries with lowest life expectancy in the year 2007.
 
-```{r}
+```{r echo=FALSE}
 ggplot(gapminder_low_lifeexp, aes(x = reorder(country, lifeExp), y = lifeExp))+
   geom_col()+
   labs(title = "Countries with lowest life expectancy",
@@ -271,7 +290,7 @@ So far, we have seen examples showing values for individual groups. However, in 
 
 The archetypal visualization for this kind of information is the **pie chart**, where each group is displayed as colored areas inside of a circle. However, over time, this graph has gained quite a negative reputation. While it is very popular, it has been shown that the human eye understands proportions more easily when they are displayed vertically. Take a look at the proportion of people in each continent represented within the world's total population in 2007, in a pie chart...
 
-```{r}
+```{r echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x = "", y = pop, fill =continent))+
   geom_col(position = "fill")+
   theme_minimal()+
@@ -287,7 +306,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(x = "", y = pop, fill =continent)
 
 or in a stacked bar chart.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x = "", y = (pop)/1000000000, fill = continent))+
   geom_col()+
   theme_minimal()+
@@ -302,7 +321,7 @@ The **stacked bar chart** shows more clearly the weight each continent has on th
 
 Visualizing proportions can be challenging, specially when the whole is broken into many different pieces. That is to say, when we want to see the values for sub-groups inside of our groups. And this is specially useful when we want to control how a variable changes by different groups. For example, we could be interested in the amount of countries that have a high or a low life expectancy across continents. This could be done in a stacked bar chart:
 
-```{r}
+```{r, echo=FALSE}
 gapminder%>% 
   mutate(
     grouped_life_exp = case_when(
@@ -323,7 +342,7 @@ gapminder%>%
 
 Stacked bar charts are useful for showing absolute values within the larger groups. It is clear from this graph that Africa has the most countries, but also that the majority of them have a low life expectancy. Another option to show this information would be a **dodged bar chart**, where the subgroup bars are positioned next to each other rather that on top.
 
-```{r}
+```{r echo=FALSE}
 gapminder%>% 
   mutate(
     grouped_life_exp = case_when(
@@ -333,7 +352,7 @@ gapminder%>%
   ) %>% 
   filter(year == 2007) %>%
   ggplot(aes(x = continent, fill = grouped_life_exp))+
-  geom_bar(position = 'dodge')+
+  geom_bar(position = position_dodge(width = 1))+
   theme_minimal()+
   labs(y = "n of countries",
        x = "",
@@ -349,7 +368,7 @@ So far, we have worked with the simplest kind of visualizations: counts or propo
 
 The most common visualization to show distributions is the **histogram**, which in practice is a variant of... the bar plot!
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x=lifeExp))+
   geom_histogram()+
   theme_minimal()+
@@ -360,7 +379,7 @@ The histogram shows the range of values (from the minimum to the maximum that th
 
 One thing to note about histograms is that their appearance (and therefore the message they convey) can change depending on the number of intervals used. The previous plot had divided the range of values into 30 'bins' or equal intervals (e.g. '0-10', '10-20', etc.) and counts how many observations fall into each one. We can increase the level of detail in the histogram by increasing the number of intervals, at the cost of losing generalization. Conversely, if we reduce the number of intervals, we show a more summarized distribution of the data, at the cost of losing detail.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x=lifeExp))+
   geom_histogram(bins = 5)+
   theme_minimal()+
@@ -369,7 +388,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(x=lifeExp))+
 
 Another option to plot distributions are **density graphs**. Density plots are direct descendants of histograms. But instead of counts of observations per range of values, they show the probability distribution of the variable, i.e. how likely it is to find a particular value if we randomly selected one of the observations. Unlike histograms, which have been in use for a couple of centuries because they are relatively easy to create by hand, the (previously) laborious density plots have become popular with the advent of software and computers capable of creating them instantly.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x=lifeExp))+
   geom_density()+
   theme_minimal()+
@@ -380,7 +399,7 @@ The results of density plots are interpreted similarly to those of a histogram: 
 
 Finally, we can plot distributions as **boxplots** (also called box and whisker plot). It displays a summary of the minimum, first quartile, median, third quartile, and maximum values of the data. First, let's take a look at the following boxplot that displays the GDP per capita across continents in 2007.
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(x = continent, y=gdpPercap))+
   geom_boxplot()+
   labs(title = "GDP per capita",
@@ -402,7 +421,7 @@ This type of graphic contains a lot of information.
 
 Finally, we could be interested in showing the relationship between variables (x-y). The most common way to show this is through **scatterplots**.
 
-```{r echo=FALSE}
+```{r,echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap))+
   geom_point()+
   labs(title = "Wealth and health across countries",
@@ -416,7 +435,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap))+
 
 So far, we mostly saw how data can be mapped into an x and y axis. However, we mentioned we can also map data as *shapes, sizes* and *colors*. We briefly saw how color can be introduced to show categorical variables when we are seeing proportions of the data. However, it can also be used as a continuous variable.
 
-```{r echo=FALSE}
+```{r,echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(y = gdpPercap, x=pop, color = lifeExp))+
   geom_point()+
   scale_color_viridis_c()+
@@ -432,7 +451,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(y = gdpPercap, x=pop, color = lif
 
 This graph shows that there is a relationship between longevity and GDP: countries with higher life expectancy are found at the top of the graph. As we continue to explore this relationship in the following plots, note that we also introduced a transformation on the X axis. We can see that the values in the scale go from 1,000,0000 to 10,000,000, and then to 100,000,000 until 1,000,000,000. This is called a **logaritmic scale**: the values are no longer evenly spaced, they increase exponentially. This is specially useful when we are working with data with a wide range of values, such as populations or income. For example, let's introduce the variable continent into our 'Wealth and health' graph with a logarithmic scale in the GDP variable.
 
-```{r echo=FALSE}
+```{r,echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap, color = continent))+
   geom_point()+
   scale_x_log10()+
@@ -447,7 +466,7 @@ This returns us a more clear and compact graph, where we can better see the vari
 
 We could also show the continents as shapes:
 
-```{r echo=FALSE}
+```{r,echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap, 
                                                shape = continent))+
   geom_point()+
@@ -461,7 +480,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap,
 
 However, the color tends to be a better option to plot categorical data. We could also introduce more data into the plot through the *size* of the dots or shapes.
 
-```{r echo=FALSE}
+```{r,echo=FALSE}
 ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap, 
                                                color = continent, size = pop/1000000))+
   geom_point()+
@@ -476,7 +495,7 @@ ggplot(gapminder %>% filter(year == 2007), aes(y = lifeExp, x=gdpPercap,
 
 # Discussion
 
-The design of a graph should always be based on the data and focused on the topic we are researching. However, we should always be careful about not lying with graphs. That is to say, it is important to not toy with our graph to show only information that reinforces our hypothesis or what we want the data to say. @kieran_data_2018 explains this with a clear example from the New York Times. In November 2016, this newspaper reported some research on peoples' confidence in the institutions of democracy. The headline in the *Times* ran "How Stable Are Democracies? 'Warning Signs Are Flashing Red'", and the graph accompanying the article certainly seemed to show an alarming decline.
+The design of a graph should always be based on the data and focused on the topic we are researching. However, we should always be careful about not lying with graphs. That is to say, it is important not to toy with our graph to show only information that reinforces our hypothesis or what we want the data to say. @kieran_data_2018 explains this with a clear example from the New York Times. In November 2016, this newspaper reported some research on peoples' confidence in the institutions of democracy. The headline in the *Times* ran "How Stable Are Democracies? 'Warning Signs Are Flashing Red'", and the graph accompanying the article certainly seemed to show an alarming decline.
 
 ![A crisis of faith in democracy? (New York Times.)](img/ch-01-democracy-nyt-version.png){width="597"}\
 
