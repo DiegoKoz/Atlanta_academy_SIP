@@ -1,18 +1,15 @@
-
-
 1.  Let's look for papers with a keyword
 
-```sql
+``` sql
 SELECT DISTINCT [OST_BK]
 INTO #OA
 FROM [WoS].[dbo].[Keyword]
 WHERE Keyword LIKE '%open%access%'
 ```
 
-2. filter your IDS for code document, year, or field:
+2.  filter your IDS for code document, year, or field:
 
-
-```sql
+``` sql
 select art.OST_BK 
 into #OA_filter
 FROM #OA
@@ -22,9 +19,9 @@ Annee_Bibliographique between 2010 AND 2022 and -- filter the years for your dat
 art.Code_Discipline >100 --For Social sciences
 ```
 
-2. Metadata
+2.  Metadata
 
-```sql
+``` sql
 --drop table #meta
 
 select distinct art.ost_BK, art.Annee_Bibliographique as year, art.titre as title, LR.Revue as journal,
@@ -38,9 +35,9 @@ INNER JOIN [WoS].pex.Liste_Discipline AS LD ON art.Code_Discipline = LD.Code_Dis
 LEFT JOIN [WoS].[pex].[Citations_Relatives] as cit on cit.OST_BK = #OA_filter.OST_BK -- we can also add citation data
 ```
 
-3. Authors
+3.  Authors
 
-```sql
+``` sql
 --drop table #authors
 
 
@@ -52,12 +49,11 @@ INNER JOIN  [WoS].[dbo].Summary_Name as n on n.OST_BK=#OA_filter.OST_BK -- the t
 LEFT JOIN [WoS].[pex].[Article] as art on art.OST_BK=#OA_filter.OST_BK
 LEFT JOIN Wos.dbo.Address_Name as adr_n on adr_n.OST_BK=#OA_filter.OST_BK and adr_n.Seq_No=n.Seq_No
 LEFT JOIN Wos.pex.Adresse as adr on adr.OST_BK=#OA_filter.OST_BK  and adr_n.Addr_No=adr.Addr_no
-
 ```
 
-4. Funding
+4.  Funding
 
-```sql
+``` sql
 -- Retrieve funding
 --drop table #funding
 
@@ -67,10 +63,9 @@ FROM #OA_filter
 LEFT JOIN  [WoS].[dbo].[Fund_Ack_Grant_Agency] as a on a.OST_BK=#OA_filter.OST_BK
 ```
 
+5.  Exports:
 
-5. Exports:
-
-```sql
+``` sql
 select * from #meta
 ORDER BY OST_BK
 
