@@ -27,11 +27,11 @@ incremental: false
 
 ## Google trends
 
-![](img/google%20trends.svg){width="246"}
+![](images/google%20trends.svg)
 
 ## Metadata
 
-![](images/Metadata.png)
+![](images/Metadata-01.png)
 
 ## Metadata
 
