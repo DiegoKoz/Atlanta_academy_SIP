@@ -9,7 +9,7 @@ editor: visual
 incremental: false   
 ---
 
-## Data Sources
+## Bibliometric Data Sources: quick summary
 
 -   Web of Science (selective)
 
@@ -49,11 +49,17 @@ Sometimes the metadata is not structured at source
 
 -   Journals are added to the index based on their citations
 
+-   It is high quality data
+
+-   Paid access
+
 ## Scopus (Elsevier)
 
 -   Created in 2004 as a vertical integration of Elsevier
 
 -   Better author dissambiguation
+
+-   Paid access
 
 ## Google Scholar
 
@@ -81,9 +87,9 @@ Sometimes the metadata is not structured at source
 
 ## Dimensions
 
--   Created in 208
+-   Created in 2008
 
--   Free for research in some cases
+-   Free for research (in some cases)
 
 -   Doesn't have quality criteria for inclusion (like WoS), it is based on DOI (crossref data)
 
@@ -99,6 +105,8 @@ Sometimes the metadata is not structured at source
 
 -   Has similar problems to Google Scholar, but it is in constant improvement.
 
+-   Free for research
+
 ## Databases overlap
 
 Overlap of documents
@@ -108,3 +116,15 @@ Overlap of documents
 Overlap of citations
 
 ![Martijn Visser, Nees Jan van Eck, Ludo Waltman; Large-scale comparison of bibliographic data sources: Scopus, Web of Science, Dimensions, Crossref, and Microsoft Academic. Quantitative Science Studies 2021; 2 (1): 20--41.](images/overlap_citations.png)
+
+## Accessibility
+
+To work with a bibliometric database we need three things:
+
+1.  Access to the data
+2.  Access to a database management system (a server)
+3.  Data literacy (SQL)
+
+We can also access the data through the online portals, but the type of analysis we can do are limited:
+
+-   https://openalex.org/
