@@ -1,0 +1,108 @@
+---
+title: "Colors"
+output: html_notebook
+---
+
+Let's use the topic [**Color Psychology and Product Design**](https://openalex.org/topics/t12496) from OpenAlex
+https://openalex.org/works?page=1&filter=primary_topic.id%3At12496&sort=cited_by_count%3Adesc
+
+
+```{r}
+library(tidyverse)
+df <- read_csv('data/works-2024-03-19T13-18-42.csv')
+```
+
+only 50K? (website limit)
+
+```{r}
+glimpse(df)
+```
+
+let's select the variables that are interesting for us:
+
+```{r}
+df <- df |> select(type,title,language,publication_year,id,primary_location_display_name,author_names,oa_status,is_retracted,referenced_works,mesh_descriptor_name,concepts_display_name,cited_by_count)
+```
+
+```{r}
+df
+```
+
+
+Do we have retracted articles?
+```{r}
+df |> 
+  filter(is_retracted)
+```
+
+which are the most cited ?
+```{r}
+df |> 
+  arrange(-cited_by_count) |> 
+  top_n(10)
+```
+
+
+```{r}
+df |> 
+  group_by(type) |> 
+  count() |> 
+  arrange(-n)
+```
+
+```{r}
+df |> 
+  group_by(language) |> 
+  count() |> 
+  arrange(-n)
+```
+
+
+```{r}
+df |> 
+  group_by(oa_status) |> 
+  count() |> 
+  ungroup() |> 
+  mutate(p = n/sum(n)) |> 
+  arrange(-n)
+```
+```{r}
+df |> 
+  group_by(publication_year) |> 
+  count() |> 
+  arrange(-publication_year)
+```
+```{r}
+df |> 
+  filter(publication_year==2025)
+```
+```{r}
+df_yr <- df |> 
+  group_by(publication_year) |> 
+  count() |> 
+  filter(publication_year>=2000,
+         publication_year<=2022)
+```
+
+```{r}
+df_yr |> 
+  ggplot(aes(publication_year,n)) +
+  geom_line()
+```
+
+```{r}
+df |> 
+  group_by(oa_status) |> 
+  summarise(mean_citations = mean(cited_by_count))
+```
+
+```{r}
+df |> 
+  group_by(oa_status) |> 
+  summarise(mean_citations = mean(cited_by_count)) |> 
+  ggplot(aes(reorder(oa_status,mean_citations),mean_citations,fill=oa_status))+
+  geom_col()+
+  scale_fill_manual(values=c('brown','red','gold','darkgreen','blue'))
+
+```
+
